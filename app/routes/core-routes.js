@@ -4,6 +4,7 @@ Login = React.createFactory(require('../components/login')),
 Signup = React.createFactory(require('../components/signup')),
 AthleteProfile = React.createFactory(require('../components/athleteprofile')),
 CoachProfile = React.createFactory(require('../components/coachprofile')),
+AccessDenied = React.createFactory(require('../components/accessdenied')),
 db = require('./database'),
 Router = require("react-router"),
 routes = require('./routes');
@@ -11,38 +12,6 @@ routes = require('./routes');
 /* SERVER SIDE RENDERING */
 
 module.exports = function(app, passport) {
-
-    // app.use(function(req, res, next) {
-
-    //     // We customize the onAbort method in order to handle redirects
-    //     var router = Router.create({
-    //         routes: routes,
-    //         location: req.path,
-    //         onAbort: function defaultAbortHandler(abortReason, location) {
-    //             if (abortReason && abortReason.to) {
-    //                 res.redirect(301, abortReason.to);
-    //             } else {  // TODO: Is this needed?
-    //                 res.redirect(404, "404");
-    //             }
-    //         }
-    //     });
-
-    //     router.run(function (Handler, state) {
-    //         // React.renderToString takes your component
-    //         // and generates the markup
-    //         var html = React.renderToString(React.createElement(Handler, {
-    //             routerState: state,
-    //             //deviceType: deviceType,
-    //             environment: "server"
-    //         }), null);
-
-    //         // Checks if route is NotFoundRoute
-    //         if (state.routes[1].isNotFound) {
-    //             res.status(404);
-    //         }
-    //         res.render('nav.ejs', { reactOutput: html} );
-    //     });
-    // });
 
     /* API Routes*/
     app.get('/getWorkouts/:id', function(req,res){
@@ -225,6 +194,11 @@ module.exports = function(app, passport) {
 	    res.render('index.ejs', {reactOutput: reactHtml, message: req.flash('loginMenuMessage') });
 	});
 
+    app.get('/accessdenied', function(req, res){
+        var reactHtml = React.renderToString(AccessDenied({}));
+        res.render('index.ejs', {reactOutput: reactHtml, message: req.flash('loginMenuMessage') });
+    });
+
 
 	/* LOGIN */
     app.get('/login', function(req, res) {
@@ -232,12 +206,6 @@ module.exports = function(app, passport) {
         var reactHtml = React.renderToString(Login({}));
 	    res.render('index.ejs', {reactOutput: reactHtml, message: req.flash('loginMessage') });
     });
-
-    // app.post('/login', passport.authenticate('local-login', {
-    //     successRedirect : '/coachprofile/1', // redirect to the secure profile section
-    //     failureRedirect : '/signup', // redirect back to the signup page if there is an error
-    //     failureFlash : true // allow flash messages
-    // }));
 
     app.post('/login', function(req, res, next) {
           passport.authenticate('local-login', function(err, user, info) {
@@ -256,14 +224,11 @@ module.exports = function(app, passport) {
             });
 
           })(req, res, next);
-        });
+    });
 
    
     /* SIGNUP */
     app.get('/signup', function(req, res) {
-
-        // render the page and pass in any flash data if it exists
-        //res.render('signup.jsx', { message: req.flash('signupMessage') });
 
         var reactHtml = React.renderToString(Signup({}));
 	    res.render('index.ejs', {reactOutput: reactHtml, message: req.flash('signupMessage')});
@@ -276,49 +241,74 @@ module.exports = function(app, passport) {
     }));
 
     /* PROFILE */
-    app.get('/athleteprofile/:id', isLoggedIn, function(req, res) {
-        // res.render('profile.jsx', {
-        //     user : req.user // get the user out of session and pass to template
-        // });
-
+    app.get('/athleteprofile/:id', isLoggedInAthlete, function(req, res) {
+    
         var id = req.params.id;
         Router.run(routes, '/athleteprofile/' + id , function (Handler) {
             var reactHtml = React.renderToString(React.createElement(Handler));
-            //var injected = { list: [Api.getArticle(aid)]};
             res.render('nav.ejs', {reactOutput: reactHtml});
         });
-
-        // var id = req.params.id;
-    	// var reactHtml = React.renderToString(AthleteProfile({athleteID: id}));
-	    // res.render('nav.ejs', {reactOutput: reactHtml});
     });
 
-    app.get('/coachprofile/:id', isLoggedIn, function(req, res) {
+    app.get('/coachprofile/:id', isLoggedInCoach, function(req, res) {
 
         var id = req.params.id;
         Router.run(routes, '/coachprofile/' + id , function (Handler) {
             var reactHtml = React.renderToString(React.createElement(Handler));
             res.render('nav.ejs', {reactOutput: reactHtml});
         });
-
-        // var id = req.params.id;
-        // var reactHtml = React.renderToString(CoachProfile({}));
-        // res.render('nav.ejs', {reactOutput: reactHtml});
-    });
-
-    
+    });  
 };
 
 // route middleware to make sure a user is logged in
-function isLoggedIn(req, res, next) {
+function isLoggedInCoach(req, res, next) {
 
     // if user is authenticated in the session, carry on 
     if (req.isAuthenticated()) {
-    	console.log('yep its authenticated!');
-    	return next();
+        // Only users with a 'Coach' userType are allowed to access coach profile
+        if(req.user.fk_userType == 1) 
+        {
+            // Each coach can only access his/her profile
+            if(req.user.id == req.params.id)
+            {
+                // Continue to /coachprofile
+                return next();
+            }
+        }
+
+    	res.redirect('/accessdenied');
+
     } else {
     	// if they aren't redirect them to the home page
-    	console.log('nope not authenticated!');
     	res.redirect('/');
+    }
+}
+
+// route middleware to make sure a user is logged in
+function isLoggedInAthlete(req, res, next) {
+
+    // if user is authenticated in the session, carry on 
+    if (req.isAuthenticated()) {
+        
+        if(req.user.fk_userType == 1) 
+        {
+            // Check to see if the requested athlete profile is linked to the coach's school
+            return next();
+        }
+        else if(req.user.fk_userType == 2)
+        {
+            // Each athlete can only access his/her profile
+            if(req.user.runnerID == req.params.id)
+            {
+                // Continue to /athleteprofile
+                return next();
+            }
+        }
+        
+        res.redirect('/accessdenied');
+
+    } else {
+        // if they aren't redirect them to the home page
+        res.redirect('/');
     }
 }
