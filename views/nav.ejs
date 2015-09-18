@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <title>SPLTS</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <link href='/styles.css' rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="row">
+    <nav id="main-nav" class="navbar navbar-default" style="margin-bottom:0px;">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="container">
+        <div class="navbar-header">
+          <a id="site-logo" class="navbar-brand" href="/">SPLTS</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <div id="user-setting-btn-box">
+                <button class="btn btn-transparent"><i class="glyphicon glyphicon-cog"></i></button>
+              </div>
+            </li>
+            <li><a id="logout-btn" href="/logout">Logout</a></li>
+          </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- .navbar-wrap -->
+      </div><!-- /.container-fluid -->
+    </nav>
+  </div>
+    <div id="react-main-mount">
+      <%- reactOutput %>
+    </div>
+
+	<!-- comment out main.js to see server side only rendering -->
+	<script src="/main.js"></script>
+
+  </body>
+</html>

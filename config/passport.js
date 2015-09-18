@@ -1,0 +1,136 @@
+// config/passport.js
+				
+// load all the things we need
+var LocalStrategy   = require('passport-local').Strategy;
+var mysql           = require('mysql');
+var bcrypt          = require('bcrypt');
+
+var connection = mysql.createConnection({
+  host     : '127.0.0.1',
+  user     : 'Colin',
+  password : 'SaltyTuna814',
+  database : 'TeamTrack'
+});
+ 
+connection.connect();	
+
+// expose this function to our app using module.exports
+module.exports = function(passport) {
+
+	// =========================================================================
+    // passport session setup ==================================================
+    // =========================================================================
+    // required for persistent login sessions
+    // passport needs ability to serialize and unserialize users out of session
+
+    // used to serialize the user for the session
+    passport.serializeUser(function(user, done) {
+		done(null, user.id);
+    });
+
+    // used to deserialize the user
+    passport.deserializeUser(function(id, done) {
+		connection.query('SELECT * FROM Users WHERE id = ?', id, function(err,rows){	
+			done(err, rows[0]);
+		});
+    });
+	
+
+ 	// =========================================================================
+    // LOCAL SIGNUP ============================================================
+    // =========================================================================
+    // we are using named strategies since we have one for login and one for signup
+	// by default, if there was no name, it would just be called 'local'
+
+    passport.use('local-signup', new LocalStrategy({
+        // by default, local strategy uses username and password, we will override with email
+        usernameField : 'email',
+        passwordField : 'password',
+
+        passReqToCallback : true // allows us to pass back the entire request to the callback
+    },
+    function(req, email, password, done) {
+
+		// find a user whose email is the same as the forms email
+		// we are checking to see if the user trying to login already exists
+        connection.query('SELECT * FROM Users WHERE email = ?', email, function(err,rows){
+			if (err)
+                return done(err);
+			 if (rows.length) {
+                return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+            } else {
+
+                // Check if the referral email exists
+                var referralCheck = connection.query('SELECT * FROM Users WHERE email = ?', req.body.referemail, function(err,rows){
+
+                    if (err)
+                        return done(err);
+                    if (!rows.length) {
+                        return done(null, false, req.flash('signupMessage', 'The referral email provided is not a regsitered user.'));
+                    } else {
+                        // if there is no user with that email
+                        // create the user
+                        var myUser          = new Object(); 
+                        myUser.email        = email;
+                        myUser.password     = bcrypt.hashSync(password, bcrypt.genSaltSync(8));
+                        myUser.firstName    = req.body.firstName;
+                        myUser.lastName     = req.body.lastName;
+                        myUser.schoolID     = req.body.schoolID;
+
+                        var query = connection.query('INSERT INTO Users (email, password, firstName, lastName, fk_schoolID) VALUES (?,?,?,?,?)', [myUser.email, myUser.password, myUser.firstName, myUser.lastName, myUser.schoolID], function(err, rows) {
+                          myUser.id = rows.insertId;
+                          return done(null, myUser);
+                        });
+                    }
+
+                });
+
+				
+            }	
+		});
+    }));
+
+    // =========================================================================
+    // LOCAL LOGIN =============================================================
+    // =========================================================================
+    // we are using named strategies since we have one for login and one for signup
+    // by default, if there was no name, it would just be called 'local'
+
+    passport.use('local-login', new LocalStrategy({
+        // by default, local strategy uses username and password, we will override with email
+        usernameField : 'email',
+        passwordField : 'password',
+        passReqToCallback : true // allows us to pass back the entire request to the callback
+    },
+    function(req, email, password, done) { // callback with email and password from our form
+
+         connection.query('SELECT * FROM Users WHERE email = ?', email, function(err,rows){
+			if (err) {
+                console.log('the login error:' + err);
+                return done(err);
+            }
+                
+			 if (!rows.length) {
+                console.log('no user found');
+                return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
+            } 
+			
+			// if the user is found but the password is wrong
+            //!( rows[0].password == password)
+            //
+            if (!bcrypt.compareSync(password, rows[0].password)) {
+                console.log('wrong password');
+                return done(null, false, req.flash('loginMessage', 'Incorrect password.')); // create the loginMessage and save it to session as flashdata
+            }
+                
+			
+            // all is well, return successful user
+            return done(null, rows[0]);			
+		
+		});
+		
+
+
+    }));
+
+};

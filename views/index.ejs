@@ -1,15 +1,29 @@
 <!doctype html>
 <html>
   <head>
-    <title>React Isomorphic Server Side Rendering Example</title>
+    <title>SPLTS</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/css/bootstrap-select.min.css" />
     <link href='/styles.css' rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.3/js/bootstrap-select.min.js"></script>
   </head>
-  <body>
-	<h1 id="main-title">Isomorphic Server Side Rendering with React</h1>
+  <body id="login-menu-body">
+
+    <div class="container error-box">
+      <% if (message.length > 0) { %>
+          <div class="alert alert-danger" role="alert">    
+            <p><%- message %></p>
+          </div>
+      <% } %>
+    </div>
 
     <div id="react-main-mount">
       <%- reactOutput %>
     </div>
+
+     
 
 	<!-- comment out main.js to see server side only rendering -->
 	<script src="/main.js"></script>
