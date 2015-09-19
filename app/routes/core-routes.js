@@ -2,8 +2,6 @@ var React = require('react/addons'),
 LoginMenu = React.createFactory(require('../components/loginmenu')),
 Login = React.createFactory(require('../components/login')),
 Signup = React.createFactory(require('../components/signup')),
-AthleteProfile = React.createFactory(require('../components/athleteprofile')),
-CoachProfile = React.createFactory(require('../components/coachprofile')),
 AccessDenied = React.createFactory(require('../components/accessdenied')),
 db = require('./database'),
 Router = require("react-router"),
@@ -257,7 +255,46 @@ module.exports = function(app, passport) {
             var reactHtml = React.renderToString(React.createElement(Handler));
             res.render('nav.ejs', {reactOutput: reactHtml});
         });
-    });  
+    }); 
+
+    /* ADD SCHOOL */
+    app.get('/addschool', function(req, res) {
+    
+        Router.run(routes, '/addschool' , function (Handler) {
+            var reactHtml = React.renderToString(React.createElement(Handler));
+            res.render('index.ejs', {reactOutput: reactHtml});
+        });
+    });
+
+    app.post('/addschool', function(req,res){
+        
+        var stateID = parseInt(req.body.fk_stateID);
+
+        var post = {
+            description: req.body.description, 
+            fk_stateID: stateID
+        };
+
+        db.addSchool(post, function(err, results) {
+            if(err) { 
+                console.log('server error');
+                var response = {
+                    status  : 500,
+                    success : 'Server Error'
+                };
+                res.end(JSON.stringify(response));
+            }
+            // Success
+            console.log('success');
+            var response = {
+                status  : 200,
+                success : 'Updated Successfully'
+            };
+
+            res.end(JSON.stringify(response));
+        });
+    });
+
 };
 
 // route middleware to make sure a user is logged in

@@ -13,6 +13,7 @@ var LoginMenu = require("../components/loginmenu");
 
 var NotFound = require("../components/notfound");
 var AccessDenied = require("../components/accessdenied");
+var AddSchool = require("../components/addschool");
 var Route = Router.Route;
 var DefaultRoute = Router.DefaultRoute;
 var NotFoundRoute = Router.NotFoundRoute;
@@ -35,6 +36,7 @@ var routes = (
     <Route name="login" path="/login" handler={Login}/>
     <Route name="loginmenu" path="/" handler={LoginMenu}/>
     <Route name="accessdenied" path="/accessdenied" handler={AccessDenied}/>
+    <Route name="addschool" path="/addschool" handler={AddSchool}/>
     <NotFoundRoute handler={NotFound} />
   </Route>
 );

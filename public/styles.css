@@ -214,6 +214,32 @@ h1, h2, h3, h4, h5, small {
   height: 40px;
 }
 
+#addschoolbtn {
+  margin-top: 10px;
+  margin-left: 5px;
+}
+
+#addschoolbtn button:hover {
+  background-color: white;
+  color: #3399ff;
+}
+
+#addSchoolInput {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#saveschoolbtn {
+  margin-left: 5px;
+  width: 100px;
+}
+
+#saveschoolbtn button:hover {
+  background-color: white;
+  color: #3399ff;
+}
+
 
 
 

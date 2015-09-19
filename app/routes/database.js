@@ -294,6 +294,33 @@ exports.getCoaches = function(id, callback) {
   });
 };
 
+// Insert new athlete
+exports.addSchool = function(post, callback) {
+
+  var sql = "INSERT INTO Schools SET ?";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [post], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
+
 
 
 
