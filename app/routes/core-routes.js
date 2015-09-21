@@ -2,6 +2,7 @@ var React = require('react/addons'),
 LoginMenu = React.createFactory(require('../components/loginmenu')),
 Login = React.createFactory(require('../components/login')),
 Signup = React.createFactory(require('../components/signup')),
+AthleteSignup = React.createFactory(require('../components/athletesignup')),
 AccessDenied = React.createFactory(require('../components/accessdenied')),
 db = require('./database'),
 Router = require("react-router"),
@@ -150,6 +151,23 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.get('/checkProfile/:schoolID/:athleteID', function(req,res){
+
+        var get = {
+            schoolID: req.params.schoolID,
+            athleteID: req.params.athleteID
+        };
+        
+        db.checkProfile(get, function(err, results) {
+            if(err) { 
+                res.send(500,"Server Error"); 
+                return;
+            }
+            // Respond with results as JSON
+            res.send(results);
+        });
+    });
+
     app.post('/createAthlete', function(req,res){
         
         var schoolCode = parseInt(req.body.fk_schoolID);
@@ -218,14 +236,25 @@ module.exports = function(app, passport) {
               if (err) { 
                 return next(err); 
               }
-              return res.redirect('/coachprofile/' + user.id);
+
+              // If coach, link to coachprofile
+              if(user.fk_userType == 1)
+              {
+                return res.redirect('/coachprofile/' + user.id);
+              }
+              // If athlete, link to athlete profile
+              else 
+              {
+                return res.redirect('/athleteprofile/' + user.fk_runnerID);
+              }
+              
             });
 
           })(req, res, next);
     });
 
    
-    /* SIGNUP */
+    /* Coach SIGNUP */
     app.get('/signup', function(req, res) {
 
         var reactHtml = React.renderToString(Signup({}));
@@ -234,7 +263,20 @@ module.exports = function(app, passport) {
 
     app.post('/signup', passport.authenticate('local-signup', {
         successRedirect : '/login', // redirect to the secure profile section
-        failureRedirect : '/signup', // redirect back to the signup page if there is an error
+        failureRedirect : '/', // redirect back to the signup page if there is an error
+        failureFlash : true // allow flash messages
+    }));
+
+    /* Athlete SIGNUP */
+    app.get('/athletesignup', function(req, res) {
+
+        var reactHtml = React.renderToString(AthleteSignup({}));
+        res.render('index.ejs', {reactOutput: reactHtml, message: req.flash('signupMessage')});
+    });
+
+    app.post('/athletesignup', passport.authenticate('local-athlete-signup', {
+        successRedirect : '/login', // redirect to the secure profile section
+        failureRedirect : '/', // redirect back to the signup page if there is an error
         failureFlash : true // allow flash messages
     }));
 
@@ -329,20 +371,41 @@ function isLoggedInAthlete(req, res, next) {
         
         if(req.user.fk_userType == 1) 
         {
-            // Check to see if the requested athlete profile is linked to the coach's school
-            return next();
+
+            var get = {
+                schoolID: req.user.fk_schoolID,
+                athleteID: req.params.id
+            };
+            
+            db.checkProfile(get, function(err, results) {
+                if(err) { 
+                    res.send(500,"Server Error"); 
+                }
+
+                if(results.length == 0)
+                {
+                    res.redirect('/accessdenied');
+                }
+                else
+                {
+                    return next();
+                }
+            });  
+
         }
         else if(req.user.fk_userType == 2)
         {
             // Each athlete can only access his/her profile
-            if(req.user.runnerID == req.params.id)
+            if(req.user.fk_runnerID == req.params.id)
             {
                 // Continue to /athleteprofile
                 return next();
             }
-        }
-        
-        res.redirect('/accessdenied');
+            else
+            {
+                res.redirect('/accessdenied');
+            }
+        }    
 
     } else {
         // if they aren't redirect them to the home page

@@ -90,6 +90,60 @@ module.exports = function(passport) {
 		});
     }));
 
+    // LOCAL Athlete SIGNUP
+    passport.use('local-athlete-signup', new LocalStrategy({
+        // by default, local strategy uses username and password, we will override with email
+        usernameField : 'email',
+        passwordField : 'password',
+
+        passReqToCallback : true // allows us to pass back the entire request to the callback
+    },
+    function(req, email, password, done) {
+
+        // find a user whose email is the same as the forms email
+        // we are checking to see if the user trying to login already exists
+        connection.query('SELECT * FROM Users WHERE email = ?', email, function(err,rows){
+            if (err)
+                return done(err);
+             if (rows.length) {
+                return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+            } else {
+                console.log('about to runner profileCheck');
+                console.log('heres schoolID:' + req.body.schoolID);
+                console.log('heres firstname: ' + req.body.firstName);
+                console.log('heres lastname: ' + req.body.lastName);
+                // Check if the referral email exists
+                var runnerProfileCheck = connection.query('SELECT * FROM Runners WHERE fk_schoolID = ? AND firstName = ? AND lastName = ?', [req.body.schoolID, req.body.firstName, req.body.lastName], function(err,rows){
+
+                    if (err)
+                        return done(err);
+                    if (!rows.length) {
+                        return done(null, false, req.flash('signupMessage', 'There is no athlete profile to link to. In order for you to complete registration, your coach needs to use the Create New Athlete tool to build your running profile. Once completed, please check with your coach to make sure your name is spelled correctly, as this is used for the linking process.'));
+                    } else {
+                        // if there is no user with that email
+                        // create the user
+                        var myUser          = new Object(); 
+                        myUser.email        = email;
+                        myUser.password     = bcrypt.hashSync(password, bcrypt.genSaltSync(8));
+                        myUser.firstName    = req.body.firstName;
+                        myUser.lastName     = req.body.lastName;
+                        myUser.schoolID     = req.body.schoolID;
+                        myUser.runnerID     = rows[0].runnerID;
+                        myUser.userType     = 2;
+
+                        var query = connection.query('INSERT INTO Users (email, password, firstName, lastName, fk_schoolID, fk_runnerID, fk_userType) VALUES (?,?,?,?,?,?,?)', [myUser.email, myUser.password, myUser.firstName, myUser.lastName, myUser.schoolID, myUser.runnerID, myUser.userType], function(err, rows) {
+                          myUser.id = rows.insertId;
+                          return done(null, myUser);
+                        });
+                    }
+
+                });
+
+                
+            }   
+        });
+    }));
+
     // =========================================================================
     // LOCAL LOGIN =============================================================
     // =========================================================================

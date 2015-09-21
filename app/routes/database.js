@@ -294,7 +294,7 @@ exports.getCoaches = function(id, callback) {
   });
 };
 
-// Insert new athlete
+// Add school
 exports.addSchool = function(post, callback) {
 
   var sql = "INSERT INTO Schools SET ?";
@@ -309,6 +309,33 @@ exports.addSchool = function(post, callback) {
     }
 
     connection.query(sql, [post], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
+
+// Insert new athlete
+exports.checkProfile = function(get, callback) {
+
+  var sql = "SELECT * FROM Runners WHERE runnerID = ? AND fk_schoolID = ?";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [get.athleteID, get.schoolID], function(err, results) {
       connection.release();
       if(err) { 
         console.log(err); 

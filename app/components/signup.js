@@ -131,7 +131,7 @@ var Signup = React.createClass({
                       </div>
                       <div id="addSchoolDiv" className="row hidden">
                         <div className="col-lg-8 col-lg-offset-4">
-                            <AddSchool handleSubmit={this.handleAddSchoolSubmit} stateID={this.state.stateID} />
+                            <AddSchool handleSubmit={this.handleAddSchoolSubmit} stateID={this.state.stateID} allSchools={this.state.schoolsData} />
                         </div>
                       </div>
                       <div className="row">
