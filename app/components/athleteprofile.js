@@ -5,6 +5,59 @@ var $ = require('jquery');
 var AthleteSnap = require('./athletesnap');
 var Griddle = require('griddle-react');
 var Router = require('react-router');
+var pyformat = require('pyformat');
+
+var TimeConvComp = React.createClass({
+
+  render: function() {
+    if(this.props.rowData.finishTime) 
+    {
+      var elapsed = parseFloat(this.props.rowData.finishTime);
+      var mins = parseInt(elapsed / 60.0);
+      elapsed -= mins * 60;
+      var secs = parseInt(elapsed);
+      elapsed -= secs;
+      var fraction = parseInt(elapsed * 10.0);
+
+      var a = pyformat('{0}:{1}.{2}', [mins, secs, fraction]);
+
+      return(
+        <div> {a} </div>
+      )
+    }else{
+      return(
+        <div> 0:00.0 </div>
+      )
+    }
+}
+
+});
+
+var TimeConvCompSplit = React.createClass({
+
+  render: function() {
+    if(this.props.rowData.splitTime) 
+    {
+      var elapsed = parseFloat(this.props.rowData.splitTime);
+      var mins = parseInt(elapsed / 60.0);
+      elapsed -= mins * 60;
+      var secs = parseInt(elapsed);
+      elapsed -= secs;
+      var fraction = parseInt(elapsed * 10.0);
+
+      var a = pyformat('{0}:{1}.{2}', [mins, secs, fraction]);
+
+      return(
+        <div> {a} </div>
+      )
+      } else {
+        return(
+          <div> 0:00.0 </div>
+        )
+      }
+  }
+
+});
 
 var splitsColsMetadata = [
 {
@@ -20,7 +73,8 @@ var splitsColsMetadata = [
 {
   "columnName":"splitTime",
   "displayName":"Time",
-  "order": 3
+  "order": 3,
+  "customComponent": TimeConvCompSplit
 },
 {
   "columnName":"fk_runInRaceID",
@@ -53,7 +107,8 @@ var myColumnMetadata = [
 {
   "columnName":"finishTime",
   "displayName":"Finish Time",
-  "order": 5
+  "order": 5,
+  "customComponent": TimeConvComp
 }
 ];
 

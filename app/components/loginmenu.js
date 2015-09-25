@@ -20,7 +20,7 @@ var Login = React.createClass({
         return (
           <div className="container">
             <div id="splash-menu-box">
-              <h1>SPLTS</h1>
+              <div id="login-menu-title"></div> 
               <div className="row">
                 <a href="/login" className="btn btn-outline-inverse btn-lg">Login</a>
               </div>
@@ -47,6 +47,7 @@ var Login = React.createClass({
       }
   });
 
+/* <h1>SPLTS</h1> */
 /* Module.exports instead of normal dom mounting */
 module.exports = Login;
 

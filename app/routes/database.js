@@ -5,7 +5,7 @@ var pool = mysql.createPool({
   user     : 'Colin',
   password : 'SaltyTuna814',
   database : 'TeamTrack',
-  connectionLimit: 10,
+  connectionLimit: 100,
   supportBigNumbers: true
 });
 
@@ -63,7 +63,7 @@ exports.getSplits = function(id, callback) {
 
 // Get athletes for coach
 exports.getAthletes = function(id, callback) {
-  var sql = "SELECT a.runnerID, CONCAT(a.firstname, ' ', a.lastname) as fullName, b.description AS schoolName FROM Runners a INNER JOIN Schools b ON a.fk_schoolID = b.id WHERE a.fk_schoolID = ?";
+  var sql = "SELECT a.runnerID, a.firstName, a.lastName, CONCAT(a.firstname, ' ', a.lastname) as fullName, b.description AS schoolName FROM Runners a INNER JOIN Schools b ON a.fk_schoolID = b.id WHERE a.fk_schoolID = ?";
 
   // get a connection from the pool
   pool.getConnection(function(err, connection) {
@@ -140,7 +140,7 @@ exports.getAthleteData = function(id, callback) {
 
 // Get states
 exports.getStates = function(callback) {
-  var sql = "SELECT id, description FROM States";
+  var sql = "SELECT id, description FROM States ORDER BY description";
 
   // get a connection from the pool
   pool.getConnection(function(err, connection) {
@@ -167,7 +167,7 @@ exports.getStates = function(callback) {
 
 // Get schools for state
 exports.getSchools = function(id, callback) {
-  var sql = "SELECT id, description FROM Schools WHERE fk_stateID = ?";
+  var sql = "SELECT id, description FROM Schools WHERE fk_stateID = ? ORDER BY description";
 
   // get a connection from the pool
   pool.getConnection(function(err, connection) {
@@ -179,6 +179,56 @@ exports.getSchools = function(id, callback) {
     }
 
     connection.query(sql, [id], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+      callback(false, results);
+    });
+  });
+};
+
+// Get events
+exports.getEvents = function(callback) {
+  var sql = "SELECT id AS myCode, description AS myDescription FROM Events";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+      callback(false, results);
+    });
+  });
+};
+
+// Get race types
+exports.getTypes = function(callback) {
+  var sql = "SELECT id AS myCode, description AS myDescription FROM RaceTypes";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, function(err, results) {
       connection.release();
       if(err) { 
         console.log(err); 
@@ -270,7 +320,7 @@ exports.createAthlete = function(post, callback) {
 
 // Get athletes for coach
 exports.getCoaches = function(id, callback) {
-  var sql = "SELECT CONCAT(firstname, ' ', lastname) as fullName FROM Users WHERE fk_schoolID = ?";
+  var sql = "SELECT CONCAT(firstname, ' ', lastname) as fullName FROM Users WHERE fk_schoolID = ? AND fk_userType = 1";
 
   // get a connection from the pool
   pool.getConnection(function(err, connection) {
@@ -349,6 +399,147 @@ exports.checkProfile = function(get, callback) {
 };
 
 
+// Create workout via app
+exports.createWorkout = function(post, callback) {
+
+  var sql = "INSERT INTO Races SET ?";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [post], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
+
+// Add athlete to workout
+exports.addAthleteToWorkout = function(post, callback) {
+
+  var sql = "INSERT INTO RunnersInRace SET ?";
+
+  console.log('post obj in addAthleteToWorkout is: ' + post);
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [post], function(err, results) {
+      connection.release();
+      if(err) {   
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      var response = {
+          runInRaceID: results.insertId,
+          runnerID: post.fk_runnerID
+      };
+
+      callback(false, response);
+    });
+  });
+};
+
+// Save finish time for workout
+exports.postWorkoutTime = function(post, callback) {
+
+  var sql = "UPDATE RunnersInRace SET finishTime = ? WHERE runInRaceID = ?";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [post.finishTime, post.runInRaceID], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
+
+// Add new split for workout
+exports.postSplit = function(post, callback) {
+
+  var sql = "INSERT INTO Splits SET ?";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [post], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
+
+// Add new split for workout
+exports.getAthletesWithSplits = function(id, callback) {
+
+  var sql = "SELECT a.runInRaceID, a.finishTime, splitNumber AS splitIndex, splitTime AS splitTime, c.firstName, c.lastName FROM RunnersInRace a INNER JOIN Splits b ON a.runInRaceID = b.fk_runInRaceID INNER JOIN Runners c ON a.fk_runnerID = c.runnerID WHERE a.fk_raceID = ?";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [id], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
 
 
 

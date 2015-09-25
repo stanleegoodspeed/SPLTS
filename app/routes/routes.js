@@ -39,6 +39,7 @@ var routes = (
     <Route name="accessdenied" path="/accessdenied" handler={AccessDenied}/>
     <Route name="addschool" path="/addschool" handler={AddSchool}/>
     <Route name="athletesignup" path="/athletesignup" handler={AthleteSignup} />
+    <Route name="notfound" path="/notfound" handler={NotFound} />
     <NotFoundRoute handler={NotFound} />
   </Route>
 );

@@ -5,15 +5,82 @@ var $ = require('jquery');
 var CreateAthlete = require('./createathlete');
 var CoachSnap = require('./coachsnap');
 var CoachList = require('./coachlist');
+var EditAthlete = require('./editathlete');
 var Router = require('react-router');
 var Griddle = require('griddle-react');
 var initData = [];
+var pyformat = require('pyformat');
 
 var LinkComponent = React.createClass({
   render: function() {
     url ="/athleteprofile/" + this.props.rowData.runnerID;
     return <a href={url}>{this.props.data}</a>
   }
+});
+
+var EditLinkComponent = React.createClass({
+
+  handleClick: function() {
+    $("#createAthleteDiv").addClass("hidden");
+    $("#editAthleteDiv").removeClass("hidden");
+    //return <button className="btn btn-transparent" onClick={this.handleClick}><i className="glyphicon glyphicon-pencil"></i></button>
+  },
+
+  render: function() {
+    return <a onClick={this.handleClick}>Edit</a>
+  }
+});
+
+var TimeConvComp = React.createClass({
+
+  render: function() {
+    if(this.props.rowData.finishTime) 
+    {
+      var elapsed = parseFloat(this.props.rowData.finishTime);
+      var mins = parseInt(elapsed / 60.0);
+      elapsed -= mins * 60;
+      var secs = parseInt(elapsed);
+      elapsed -= secs;
+      var fraction = parseInt(elapsed * 10.0);
+
+      var a = pyformat('{0}:{1}.{2}', [mins, secs, fraction]);
+
+      return(
+        <div> {a} </div>
+      )
+    }else{
+      return(
+        <div> 0:00.0 </div>
+      )
+    }
+}
+
+});
+
+var TimeConvCompSplit = React.createClass({
+
+  render: function() {
+    if(this.props.rowData.splitTime) 
+    {
+      var elapsed = parseFloat(this.props.rowData.splitTime);
+      var mins = parseInt(elapsed / 60.0);
+      elapsed -= mins * 60;
+      var secs = parseInt(elapsed);
+      elapsed -= secs;
+      var fraction = parseInt(elapsed * 10.0);
+
+      var a = pyformat('{0}:{1}.{2}', [mins, secs, fraction]);
+
+      return(
+        <div> {a} </div>
+      )
+      } else {
+        return(
+          <div> 0:00.0 </div>
+        )
+      }
+  }
+
 });
 
 var splitsColsMetadata = [
@@ -30,7 +97,8 @@ var splitsColsMetadata = [
 {
   "columnName":"splitTime",
   "displayName":"Time",
-  "order": 3
+  "order": 3,
+  "customComponent": TimeConvCompSplit
 },
 {
   "columnName":"fk_runInRaceID",
@@ -80,7 +148,8 @@ var athletesColumnMetadata = [
 {
   "columnName":"finishTime",
   "displayName":"Finish Time",
-  "order": 4
+  "order": 4,
+  "customComponent": TimeConvComp
 }
 ];
 
@@ -188,6 +257,10 @@ var CoachProfile = React.createClass({
 
       },
 
+      handleEditSubmit: function() {
+        // TODO
+      },
+
       loadDataFromServer: function() {
 
         var id = this.getParams().id;
@@ -280,10 +353,13 @@ var CoachProfile = React.createClass({
                         <div className="col-sm-8 no-left-padding">
                             <Griddle results={this.state.filteredData} columnMetadata={myColumnMetadata} columns={["fullName", "schoolName"]} resultsPerPage={10} showFilter={true} showPager={true} />
                         </div>
-                        <div className="col-sm-4">
-                            <CreateAthlete schoolCode={this.state.schoolCode} handleSubmit={this.handleSubmit} />
+                        <div id="createAthleteDiv" className="col-sm-4">
+                            <CreateAthlete schoolCode={this.state.schoolCode} schoolName={this.state.coachData.schoolName} handleSubmit={this.handleSubmit} />
                         </div>
-                        
+                        <div id="editAthleteDiv" className="col-sm-4 hidden">
+                            <EditAthlete firstName={"Johnny"} lastName={"Appleseed"} schoolCode={this.state.schoolCode} schoolName={this.state.coachData.schoolName} handleSubmit={this.handleEditSubmit} />
+                        </div>
+
                       </div>
 
                       <div className="tab-pane" id="workouts">

@@ -38,10 +38,8 @@ require('./app/routes/core-routes.js')(app,passport);
 
 //Route not found -- Set 404
 app.get('*', function(req, res) {
-    res.json({
-        "route": "Sorry this page does not exist!"
-    });
+    res.redirect('/notfound');
 });
 
-app.listen(port);
+app.listen(port, "0.0.0.0");
 console.log('Server is Up and Running at Port : ' + port);

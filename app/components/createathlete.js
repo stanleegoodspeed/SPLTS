@@ -12,31 +12,33 @@ var CreateAthlete = React.createClass({
           var lastname = React.findDOMNode(this.refs.lastname).value.trim();
           var schoolcode = React.findDOMNode(this.refs.schoolcode).value.trim();
 
-          if (!firstname || !lastname) {
-            return;
+          if (firstname.length == 0 || lastname.length == 0) {
+            $('#form-response').html('<p class="text-danger">Missing fields!</p>').fadeIn(2000).delay(2000).fadeOut();
           }
+          else
+          {
+            var formData = {
+              firstName: firstname,
+              lastName: lastname,
+              fk_schoolID: schoolcode
+            };
 
-          var formData = {
-            firstName: firstname,
-            lastName: lastname,
-            fk_schoolID: schoolcode
-          };
-
-          $.ajax({
-            url:"/createAthlete",
-            type:"POST",
-            data:formData,
-            success:function(data){   
-              console.log('success!');  
-              $('#form-response').html('<p className="info">Success!</p>').delay(2000).fadeOut();      
-              this.props.handleSubmit();
-            }.bind(this),
-            error: function() {
-              $('#form-response').html('<p className="danger">Error!</p').delay(2000).fadeOut(); 
-              console.log('error!');
-            },     
-            dataType:"json"
-          });
+            $.ajax({
+              url:"/createAthlete",
+              type:"POST",
+              data:formData,
+              success:function(data){   
+                console.log('success!');  
+                $('#form-response').html('<p class="text-primary">Success!</p>').fadeIn(2000).delay(2000).fadeOut();      
+                this.props.handleSubmit();
+              }.bind(this),
+              error: function() {
+                $('#form-response').html('<p class="text-danger">Error!</p').fadeIn(2000).delay(2000).fadeOut(); 
+                console.log('error!');
+              },     
+              dataType:"json"
+            });
+        }
       },
 
       render: function () {
@@ -61,8 +63,8 @@ var CreateAthlete = React.createClass({
                     <div id="final-form-group" className="form-group">
                     <div className="row">
                         <label forHtml="schoolNameInput">School</label>
-                        <input type="text" className="form-control" id="schoolNameInput" value="Haddon Heights High School" disabled />
-                        <input type="hidden" id="schoolCode" name="schoolCode" value={this.props.schoolCode} ref="schoolcode" />
+                        <input type="text" className="form-control" id="schoolNameInput" value={this.props.schoolName} readOnly />
+                        <input type="hidden" id="schoolCode" name="schoolCode" value={this.props.schoolCode} ref="schoolcode" readOnly />
                       </div>
                     </div>
                     <br />

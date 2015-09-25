@@ -1,7 +1,7 @@
 
 ### SPLTS
 
-Built on Node + React + Gulp + Browserify 
+Built on Node + React + Gulp + Browserify + AWS
 
 ### What is it?
 

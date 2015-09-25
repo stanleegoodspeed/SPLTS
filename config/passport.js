@@ -51,6 +51,10 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) {
 
+        // Validation
+        if(email.length == 0 || password.length == 0 || req.body.firstName.length == 0 || req.body.lastName.length == 0 || req.body.schoolID == 0 || req.body.referemail.length == 0) {
+            return done(null, false, req.flash('signupMessage', 'All fields are required to complete sign up.'));
+        }
 		// find a user whose email is the same as the forms email
 		// we are checking to see if the user trying to login already exists
         connection.query('SELECT * FROM Users WHERE email = ?', email, function(err,rows){
@@ -76,8 +80,9 @@ module.exports = function(passport) {
                         myUser.firstName    = req.body.firstName;
                         myUser.lastName     = req.body.lastName;
                         myUser.schoolID     = req.body.schoolID;
+                        myUser.userType     = 1;
 
-                        var query = connection.query('INSERT INTO Users (email, password, firstName, lastName, fk_schoolID) VALUES (?,?,?,?,?)', [myUser.email, myUser.password, myUser.firstName, myUser.lastName, myUser.schoolID], function(err, rows) {
+                        var query = connection.query('INSERT INTO Users (email, password, firstName, lastName, fk_schoolID, fk_userType) VALUES (?,?,?,?,?,?)', [myUser.email, myUser.password, myUser.firstName, myUser.lastName, myUser.schoolID, myUser.userType], function(err, rows) {
                           myUser.id = rows.insertId;
                           return done(null, myUser);
                         });
@@ -100,6 +105,11 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) {
 
+        // Validation
+        if(email.length == 0 || password.length == 0 || req.body.firstName.length == 0 || req.body.lastName.length == 0 || req.body.schoolID == 0) {
+            return done(null, false, req.flash('signupMessage', 'All fields are required to complete sign up.'));
+        }
+
         // find a user whose email is the same as the forms email
         // we are checking to see if the user trying to login already exists
         connection.query('SELECT * FROM Users WHERE email = ?', email, function(err,rows){
@@ -108,10 +118,6 @@ module.exports = function(passport) {
              if (rows.length) {
                 return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
             } else {
-                console.log('about to runner profileCheck');
-                console.log('heres schoolID:' + req.body.schoolID);
-                console.log('heres firstname: ' + req.body.firstName);
-                console.log('heres lastname: ' + req.body.lastName);
                 // Check if the referral email exists
                 var runnerProfileCheck = connection.query('SELECT * FROM Runners WHERE fk_schoolID = ? AND firstName = ? AND lastName = ?', [req.body.schoolID, req.body.firstName, req.body.lastName], function(err,rows){
 
@@ -161,7 +167,7 @@ module.exports = function(passport) {
          connection.query('SELECT * FROM Users WHERE email = ?', email, function(err,rows){
 			if (err) {
                 console.log('the login error:' + err);
-                return done(err);
+                return done(null, false, req.flash('loginMessage', 'No user found.'));
             }
                 
 			 if (!rows.length) {

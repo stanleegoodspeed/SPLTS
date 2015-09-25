@@ -34,6 +34,16 @@ h1, h2, h3, h4, h5, small {
 
 /* SPLASH / LOGIN / SIGNUP */
 
+#login-menu-title {
+  width: 300px;
+  height: 80px;
+  margin-left: auto;
+  margin-right: auto;
+  background-image: url("./SPLTS-300x80.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
 #login-menu-body {
   background-image: url("./blue_gradient.png");
   background-size: 100% 100%;
@@ -55,7 +65,7 @@ h1, h2, h3, h4, h5, small {
 }
 
 #splash-menu-box a {
-  width: 294px;
+  width: 254px;
 }
 
 #splash-menu-box a:hover {
@@ -242,6 +252,19 @@ h1, h2, h3, h4, h5, small {
 
 .radio label {
   color: white;
+}
+
+#notfound-box {
+  margin-top: 20%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#notfound-box h2 {
+  font-size: 80px;
+  color: white;
+  letter-spacing: 5px;
 }
 
 
