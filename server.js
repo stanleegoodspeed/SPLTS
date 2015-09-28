@@ -2,7 +2,7 @@
 
 var express 	= require('express'),
 app 			= express(),
-port 			= process.env.PORT || 4444,
+port 			= process.env.PORT  || 8081,
 passport 		= require('passport'),
 flash    		= require('connect-flash'),
 path     		= require('path'),
@@ -41,5 +41,6 @@ app.get('*', function(req, res) {
     res.redirect('/notfound');
 });
 
-app.listen(port, "0.0.0.0");
+app.listen(port);
+//app.listen(port, "0.0.0.0");
 console.log('Server is Up and Running at Port : ' + port);
