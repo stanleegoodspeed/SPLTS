@@ -5,12 +5,22 @@ var LocalStrategy   = require('passport-local').Strategy;
 var mysql           = require('mysql');
 var bcrypt          = require('bcrypt');
 
+// var connection = mysql.createConnection({
+//   host     : '127.0.0.1',
+//   user     : 'Colin',
+//   password : 'SaltyTuna814',
+//   database : 'TeamTrack'
+// });
+
 var connection = mysql.createConnection({
-  host     : '127.0.0.1',
-  user     : 'Colin',
+  host     : 'virginia-mysql-instance1.ctlbtxqxbjwy.us-east-1.rds.amazonaws.com',
+  port     : 3306,
+  user     : 'colincole',
   password : 'SaltyTuna814',
   database : 'TeamTrack'
 });
+
+  
  
 connection.connect();	
 

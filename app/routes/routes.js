@@ -2,7 +2,7 @@
 
 var React = require("react");
 var Router = require("react-router");
-var Application = require("../components/Application");
+var Application = require("../components/application");
 
 var CoachProfile = require("../components/coachprofile");
 var AthleteProfile = require("../components/athleteprofile");

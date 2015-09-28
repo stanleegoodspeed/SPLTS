@@ -1,5 +1,5 @@
 {
-  "name": "node-authentication",
+  "name": "splts-package-config",
   "main": "server.js",
   "dependencies": {
     "bcrypt": "latest",

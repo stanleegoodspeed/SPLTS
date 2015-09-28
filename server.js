@@ -21,7 +21,7 @@ app.use(bodyParser()); // get information from html forms
 require("node-jsx").install();
 
 // Include static assets. Not advised for production
-//app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 // Set view path
 app.set('views', path.join(__dirname, 'views'));
 // set up ejs for templating. You can use whatever
