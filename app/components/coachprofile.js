@@ -277,6 +277,21 @@ var CoachProfile = React.createClass({
               dataType:"json"
         });
 
+
+        // Get all athletes associated with coach's school
+        $.ajax({
+              url:"/getAthletes/" + id,
+              type:"GET",
+              success:function(data){   
+                this.setState({filteredData: data});
+                initData = data.slice();
+              }.bind(this),
+              error: function() {
+                console.log('error!');
+              },     
+              dataType:"json"
+        }); 
+
         $.ajax({
             url:"/getCoachData/" + id,
             type:"GET",
@@ -284,21 +299,7 @@ var CoachProfile = React.createClass({
               this.setState({
                 coachData: data[0],
                 schoolCode: data[0].fk_schoolID
-              })
-
-              // Need to retrieve the schoolcode from coach profile before loading athlete table
-              $.ajax({
-                  url:"/getAthletes/" + data[0].fk_schoolID,
-                  type:"GET",
-                  success:function(data){   
-                    this.setState({filteredData: data});
-                    initData = data.slice();
-                  }.bind(this),
-                  error: function() {
-                    console.log('error!');
-                  },     
-                  dataType:"json"
-              });
+              })             
 
               // Get list of all coaches for school
               $.ajax({

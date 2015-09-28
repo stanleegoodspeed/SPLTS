@@ -15,6 +15,7 @@ var NotFound = require("../components/notfound");
 var AccessDenied = require("../components/accessdenied");
 var AddSchool = require("../components/addschool");
 var AthleteSignup = require("../components/athletesignup");
+var Admin = require("../components/admin");
 var Route = Router.Route;
 var DefaultRoute = Router.DefaultRoute;
 var NotFoundRoute = Router.NotFoundRoute;
@@ -39,6 +40,7 @@ var routes = (
     <Route name="accessdenied" path="/accessdenied" handler={AccessDenied}/>
     <Route name="addschool" path="/addschool" handler={AddSchool}/>
     <Route name="athletesignup" path="/athletesignup" handler={AthleteSignup} />
+    <Route name="admin" path="/admin" handler={Admin} />
     <Route name="notfound" path="/notfound" handler={NotFound} />
     <NotFoundRoute handler={NotFound} />
   </Route>

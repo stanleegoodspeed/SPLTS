@@ -1,8 +1,19 @@
 var mysql = require('mysql');
 
+// var pool = mysql.createPool({
+//   host     : '127.0.0.1',
+//   user     : 'Colin',
+//   password : 'SaltyTuna814',
+//   database : 'TeamTrack',
+//   connectionLimit: 100,
+//   supportBigNumbers: true
+// });
+
+// PRODUCTION
 var pool = mysql.createPool({
-  host     : '127.0.0.1',
-  user     : 'Colin',
+  host     : 'virginia-mysql-instance1.ctlbtxqxbjwy.us-east-1.rds.amazonaws.com',
+  port     : 3306,
+  user     : 'colincole',
   password : 'SaltyTuna814',
   database : 'TeamTrack',
   connectionLimit: 100,
@@ -63,8 +74,9 @@ exports.getSplits = function(id, callback) {
 
 // Get athletes for coach
 exports.getAthletes = function(id, callback) {
-  var sql = "SELECT a.runnerID, a.firstName, a.lastName, CONCAT(a.firstname, ' ', a.lastname) as fullName, b.description AS schoolName FROM Runners a INNER JOIN Schools b ON a.fk_schoolID = b.id WHERE a.fk_schoolID = ?";
+  //var sql = "SELECT a.runnerID, a.firstName, a.lastName, CONCAT(a.firstname, ' ', a.lastname) as fullName, b.description AS schoolName FROM Runners a INNER JOIN Schools b ON a.fk_schoolID = b.id WHERE a.fk_schoolID = ?";
 
+  var sql = "SELECT a.runnerID, a.firstName, a.lastName, CONCAT(a.firstname, ' ', a.lastname) as fullName, b.description AS schoolName FROM Runners a INNER JOIN Schools b ON a.fk_schoolID = b.id INNER JOIN Users c ON c.id = ? WHERE a.fk_schoolID = c.fk_schoolID";
   // get a connection from the pool
   pool.getConnection(function(err, connection) {
     
@@ -529,6 +541,33 @@ exports.getAthletesWithSplits = function(id, callback) {
     }
 
     connection.query(sql, [id], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
+
+// Add new split for workout
+exports.getUsers = function(callback) {
+
+  var sql = "SELECT id AS userID, CONCAT(firstname, ' ', lastname) as fullName FROM Users WHERE fk_userType = 2";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, function(err, results) {
       connection.release();
       if(err) { 
         console.log(err); 

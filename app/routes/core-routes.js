@@ -375,6 +375,18 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.get('/getUsers', isAdmin, function(req,res){
+        
+        db.getUsers(function(err, results) {
+            if(err) { 
+                res.send(500,"Server Error"); 
+                return;
+            }
+            // Respond with results as JSON
+            res.send(results);
+        });
+    });
+
     app.get('/logout', function(req, res) {
         req.logout();
         res.redirect('/');
@@ -422,15 +434,20 @@ module.exports = function(app, passport) {
                 return res.redirect('/login');  
               }
 
+              console.log('okay, i loogged in - heres my user type: ' + user.fk_userType);
               // If coach, link to coachprofile
               if(user.fk_userType == 1)
               {
                 return res.redirect('/coachprofile/' + user.id);
               }
               // If athlete, link to athlete profile
-              else 
+              else if(user.fk_userType == 2)
               {
                 return res.redirect('/athleteprofile/' + user.fk_runnerID);
+              }
+              else if(user.fk_userType == 3)
+              {
+                return res.redirect('/admin');
               }
               
             });
@@ -570,10 +587,28 @@ module.exports = function(app, passport) {
         });
     });
 
+    /* ADMIN */
+    app.get('/admin', isAdmin, function(req, res) {
+    
+        Router.run(routes, '/admin' , function (Handler) {
+            var reactHtml = React.renderToString(React.createElement(Handler));
+            res.render('nav.ejs', {reactOutput: reactHtml});
+        });
+    });
+
 };
 
 
 /* MIDDLEWARE Funcs */
+function isAdmin(req, res, next) {
+    if (req.user.fk_userType == 3) {
+        return next();
+    }
+    else
+    {
+        res.redirect('/accessdenied');
+    }
+}
 
 // route middleware to make sure a user is logged in
 function isLoggedInCoach(req, res, next) {
@@ -648,11 +683,11 @@ function isLoggedInAthlete(req, res, next) {
                 res.redirect('/accessdenied');
             }
         }
-        // Superuser
         else if(req.user.fk_userType == 3)
         {
             return next();
-        }    
+        }
+        
 
     } else {
         // if they aren't redirect them to the home page

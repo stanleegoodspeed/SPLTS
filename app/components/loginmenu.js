@@ -28,18 +28,18 @@ var Login = React.createClass({
                 <a className="btn btn-outline-inverse btn-lg" onClick={this.handleSignup}>Sign up</a>
               </div>
               <div id="signup-selection" className="hidden">
-              <div className="radio">
-                <label>
-                  <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onClick={this.handleCoach} />
-                  Coach
-                </label>
-              </div>
-              <div className="radio">
-                <label>
-                  <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2" onClick={this.handleAthlete} />
-                  Athlete
-                </label>
-              </div>  
+                <div className="radio">
+                  <label>
+                    <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" onClick={this.handleCoach} />
+                    Coach
+                  </label>
+                </div>
+                <div className="radio">
+                  <label>
+                    <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2" onClick={this.handleAthlete} />
+                    Athlete
+                  </label>
+                </div>  
               </div>   
             </div>
           </div>
@@ -47,7 +47,6 @@ var Login = React.createClass({
       }
   });
 
-/* <h1>SPLTS</h1> */
 /* Module.exports instead of normal dom mounting */
 module.exports = Login;
 

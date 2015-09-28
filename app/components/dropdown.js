@@ -28,11 +28,11 @@ var DropdownWrapper = React.createClass({
     var rows = [];
 
     this.props.myData.map(function(domainVal, i) {
-          rows.push(<MenuItem onSelect={selectedDomainVal} domainCode={domainVal.id} key={domainVal.id}>{domainVal.description}</MenuItem>)
+          rows.push(<MenuItem onSelect={selectedDomainVal} domainCode={domainVal.id} eventKey={domainVal.id}>{domainVal.description}</MenuItem>)
     });
 
     return (
-       <DropdownButton ref="DropMenu" bsStyle="default" title={this.props.menuTitle}  >
+       <DropdownButton id={this.props.menuTitle} ref="DropMenu" bsStyle="default" title={this.props.menuTitle}  >
               {rows}
        </DropdownButton>         
     );
