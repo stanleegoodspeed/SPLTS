@@ -9,7 +9,7 @@ var mysql = require('mysql');
 //   supportBigNumbers: true
 // });
 
-// PRODUCTION
+//PRODUCTION
 var pool = mysql.createPool({
   host     : 'virginia-mysql-instance1.ctlbtxqxbjwy.us-east-1.rds.amazonaws.com',
   port     : 3306,
@@ -204,7 +204,7 @@ exports.getSchools = function(id, callback) {
 
 // Get events
 exports.getEvents = function(callback) {
-  var sql = "SELECT id AS myCode, description AS myDescription FROM Events";
+  var sql = "SELECT id AS myCode, description AS myDescription FROM Events ORDER BY myDescription * 1";
 
   // get a connection from the pool
   pool.getConnection(function(err, connection) {
@@ -556,7 +556,7 @@ exports.getAthletesWithSplits = function(id, callback) {
 // Add new split for workout
 exports.getUsers = function(callback) {
 
-  var sql = "SELECT id AS userID, CONCAT(firstname, ' ', lastname) as fullName FROM Users WHERE fk_userType = 2";
+  var sql = "SELECT id AS userID, CONCAT(firstname, ' ', lastname) as fullName FROM Users WHERE fk_userType = 1";
 
   // get a connection from the pool
   pool.getConnection(function(err, connection) {
@@ -568,6 +568,60 @@ exports.getUsers = function(callback) {
     }
 
     connection.query(sql, function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
+
+// Create workout via app
+exports.editAthlete = function(post, callback) {
+
+  var sql = "UPDATE Runners SET firstName = ?, lastName = ? WHERE runnerID = ?";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [post.firstName, post.lastName, post.runnerID ], function(err, results) {
+      connection.release();
+      if(err) { 
+        console.log(err); 
+        callback(true); 
+        return; 
+      }
+
+      callback(false, results);
+    });
+  });
+};
+
+// Create workout via app
+exports.deleteAthlete = function(post, callback) {
+
+  var sql = "UPDATE Runners SET fk_schoolID = -1 WHERE runnerID = ?";
+
+  // get a connection from the pool
+  pool.getConnection(function(err, connection) {
+    
+    if(err) { 
+      console.log(err); 
+      callback(true); 
+      return; 
+    }
+
+    connection.query(sql, [post.runnerID], function(err, results) {
       connection.release();
       if(err) { 
         console.log(err); 

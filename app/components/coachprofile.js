@@ -10,6 +10,7 @@ var Router = require('react-router');
 var Griddle = require('griddle-react');
 var initData = [];
 var pyformat = require('pyformat');
+var pubsub = require('pubsub-js');
 
 var LinkComponent = React.createClass({
   render: function() {
@@ -23,6 +24,7 @@ var EditLinkComponent = React.createClass({
   handleClick: function() {
     $("#createAthleteDiv").addClass("hidden");
     $("#editAthleteDiv").removeClass("hidden");
+    pubsub.publish('products', this.props.rowData);
     //return <button className="btn btn-transparent" onClick={this.handleClick}><i className="glyphicon glyphicon-pencil"></i></button>
   },
 
@@ -124,6 +126,12 @@ var myColumnMetadata = [
   "columnName":"schoolName",
   "displayName":"School",
   "order": 3
+},
+{
+  "columnName":"editLink",
+  "displayName":"",
+  "order": 4,
+  "customComponent": EditLinkComponent
 }
 ];
 
@@ -185,7 +193,7 @@ var workoutsColumnMetadata = [
 
 var CoachProfile = React.createClass({
 
-      mixins: [Router.State],
+      mixins: [Router.State, React.addons.LinkedStateMixin],
 
       getInitialState: function () {
         return {
@@ -195,7 +203,10 @@ var CoachProfile = React.createClass({
           workouts:[],
           athletes: [],
           splits:[],
-          coaches:[]
+          coaches:[],
+          editFirst: '',
+          editLast: '',
+          editID: 0
         };
       },
 
@@ -241,10 +252,10 @@ var CoachProfile = React.createClass({
       handleSubmit: function() {
 
               // Reload athletes 
-              var schoolID = this.state.schoolCode;
+              var id = this.getParams().id;
 
               $.ajax({
-                  url:"/getAthletes/" + schoolID,
+                  url:"/getAthletes/" + id,
                   type:"GET",
                   success:function(data){   
                     this.setState({filteredData: data});
@@ -257,8 +268,58 @@ var CoachProfile = React.createClass({
 
       },
 
-      handleEditSubmit: function() {
-        // TODO
+      handleEditSubmit: function(e) {
+
+          e.preventDefault();
+
+          if (!this.state.editFirst || !this.state.editLast) {
+            $('#form-response').html('<p className="danger">Error! Missing values.</p>').delay(2000).fadeOut(); 
+          }
+
+          var formData = {
+            firstName: this.state.editFirst,
+            lastName: this.state.editLast,
+            runnerID: this.state.editID
+          };
+
+          $.ajax({
+            url:"/editAthlete",
+            type:"POST",
+            data:formData,
+            success:function(data){   
+              console.log('success!');  
+              $('#form-response').html('<p className="info">Success!</p>').delay(2000).fadeOut();  
+              this.handleSubmit();   
+            }.bind(this),
+            error: function() {
+              console.log('error!');
+              $('#form-response').html('<p className="danger">Error!</p').delay(2000).fadeOut(); 
+            },     
+            dataType:"json"
+          });
+      },
+
+      handleDelete: function() {
+
+        var formData = {
+            runnerID: this.state.editID
+        };
+
+        $.ajax({
+            url:"/deleteAthlete",
+            type:"POST",
+            data:formData,
+            success:function(data){   
+              console.log('success!');  
+              $('#form-response').html('<p className="info">Success!</p>').delay(2000).fadeOut(); 
+              this.handleSubmit();      
+            }.bind(this),
+            error: function() {
+              $('#form-response').html('<p className="danger">Error!</p').delay(2000).fadeOut(); 
+              console.log('error!');
+            },     
+            dataType:"json"
+        });
       },
 
       loadDataFromServer: function() {
@@ -324,7 +385,16 @@ var CoachProfile = React.createClass({
       },
 
       componentDidMount: function() {    
+        // load
         this.loadDataFromServer();
+
+        // subscribe to global event
+        var token = pubsub.subscribe('products', function(topic, product) {
+          this.setState({ editFirst: product.firstName });
+          this.setState({ editLast: product.lastName });
+          this.setState({ editID: product.runnerID });
+        }.bind(this));
+
       },
 
       render: function () {
@@ -352,19 +422,57 @@ var CoachProfile = React.createClass({
                       <div className="tab-pane active" id="athletes">
 
                         <div className="col-sm-8 no-left-padding">
-                            <Griddle results={this.state.filteredData} columnMetadata={myColumnMetadata} columns={["fullName", "schoolName"]} resultsPerPage={10} showFilter={true} showPager={true} />
+                            <Griddle results={this.state.filteredData} columnMetadata={myColumnMetadata} columns={["fullName", "schoolName", "editLink"]} resultsPerPage={10} showFilter={true} showPager={true} />
                         </div>
                         <div id="createAthleteDiv" className="col-sm-4">
                             <CreateAthlete schoolCode={this.state.schoolCode} schoolName={this.state.coachData.schoolName} handleSubmit={this.handleSubmit} />
                         </div>
                         <div id="editAthleteDiv" className="col-sm-4 hidden">
-                            <EditAthlete firstName={"Johnny"} lastName={"Appleseed"} schoolCode={this.state.schoolCode} schoolName={this.state.coachData.schoolName} handleSubmit={this.handleEditSubmit} />
-                        </div>
 
+
+                            <div id="createAthletePanel" className="panel panel-default">
+                              <div className="panel-heading"><h5 className="panel-title">Edit Athlete</h5></div>
+                              <div className="panel-body">
+                              
+                              <form onSubmit={this.handleEditSubmit}>
+                                <div className="form-group">
+                                <div className="row">
+                                    <label forHtml="firstNameInput">First name</label>
+                                    <input type="text" className="form-control" valueLink={this.linkState('editFirst')} />
+                                  </div>
+                                </div>
+                                <div className="form-group">
+                                <div className="row">
+                                    <label forHtml="lastNameInput">Last name</label>
+                                    <input type="text" className="form-control" valueLink={this.linkState('editLast')} />
+                                  </div>
+                                </div>
+                                <div id="final-form-group" className="form-group">
+                                <div className="row">
+                                    <label forHtml="schoolNameInput">School</label>
+                                    <input type="text" className="form-control" id="schoolNameInput" value={this.state.coachData.schoolName} disabled />
+                                  </div>
+                                </div>
+                                <br />
+                                <div className="row">
+                                    <div className="col-sm-12 no-left-padding">
+                                      <button type="submit" className="btn btn-outline-inverse-ca">Save</button>
+                                      <button type="button" className="btn btn-danger pull-right" onClick={this.handleDelete}><i className="glyphicon glyphicon-trash"></i></button>
+                                    </div>
+                                </div>  
+                                <div className="row">
+                                  <div id="form-response" className="col-sm-12 no-left-padding"></div>
+                                </div>    
+                              </form>
+                              </div>
+                          </div>
+
+
+                        </div>
                       </div>
 
                       <div className="tab-pane" id="workouts">
-                          
+
                           <div>
                             <Griddle results={this.state.workouts} onRowClick={this.handleSelect} columnMetadata={workoutsColumnMetadata} columns={["raceName", "raceDate", "eventName", "raceType"]} resultsPerPage={10} showFilter={true} showPager={true} noDataMessage={"There are no workouts to display."} />
                           </div>
@@ -378,10 +486,9 @@ var CoachProfile = React.createClass({
                             </div>
                           </div>
                       </div>     
-
-                  </div>
                 </div>
               </div>
+            </div>
         </div>
         )
       }

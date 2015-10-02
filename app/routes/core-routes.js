@@ -208,6 +208,60 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.post('/editAthlete', function(req,res){
+        
+        var post = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            runnerID: req.body.runnerID
+        };
+
+        db.editAthlete(post, function(err, results) {
+            if(err) { 
+                console.log('server error');
+                var response = {
+                    status  : 500,
+                    success : 'Server Error'
+                };
+                res.end(JSON.stringify(response));
+            }
+            // Success
+            console.log('success');
+            var response = {
+                status  : 200,
+                success : 'Updated Successfully'
+            };
+
+            res.end(JSON.stringify(response));
+        });
+    });
+
+    app.post('/deleteAthlete', function(req,res){
+        
+        var post = {
+            runnerID: req.body.runnerID
+        };
+
+        db.deleteAthlete(post, function(err, results) {
+            if(err) { 
+                console.log('server error');
+                var response = {
+                    status  : 500,
+                    success : 'Server Error'
+                };
+                res.end(JSON.stringify(response));
+            }
+            // Success
+            console.log('success');
+            var response = {
+                status  : 200,
+                success : 'Updated Successfully'
+            };
+
+            res.end(JSON.stringify(response));
+        });
+    });
+
     app.post('/createAthlete', function(req,res){
         
         var schoolCode = parseInt(req.body.fk_schoolID);
@@ -596,17 +650,40 @@ module.exports = function(app, passport) {
         });
     });
 
+    /* ADMIN */
+    app.get('/faq', isAuth, function(req, res) {
+    
+        Router.run(routes, '/faq' , function (Handler) {
+            var reactHtml = React.renderToString(React.createElement(Handler));
+            res.render('nav.ejs', {reactOutput: reactHtml});
+        });
+    });
+
 };
 
 
 /* MIDDLEWARE Funcs */
-function isAdmin(req, res, next) {
-    if (req.user.fk_userType == 3) {
+function isAuth(req, res, next) {
+    if (req.isAuthenticated()) {
         return next();
+    } else {
+        res.redirect('/');
     }
-    else
-    {
-        res.redirect('/accessdenied');
+}
+
+
+
+function isAdmin(req, res, next) {
+    if (req.isAuthenticated()) {
+        if (req.user.fk_userType == 3) {
+            return next();
+        }
+        else
+        {
+            res.redirect('/accessdenied');
+        }
+    } else {
+        res.redirect('/');
     }
 }
 

@@ -16,18 +16,10 @@ var AccessDenied = require("../components/accessdenied");
 var AddSchool = require("../components/addschool");
 var AthleteSignup = require("../components/athletesignup");
 var Admin = require("../components/admin");
+var About = require("../components/about");
 var Route = Router.Route;
 var DefaultRoute = Router.DefaultRoute;
 var NotFoundRoute = Router.NotFoundRoute;
-
-
-// var wrapComponent = function(Component, props) {
-//   return React.createClass({
-//     render: function() {
-//       return React.createElement(Component, props);
-//     }
-//   });
-// };
 
 var routes = (
   <Route handler={Application} path="/"> 
@@ -41,6 +33,7 @@ var routes = (
     <Route name="addschool" path="/addschool" handler={AddSchool}/>
     <Route name="athletesignup" path="/athletesignup" handler={AthleteSignup} />
     <Route name="admin" path="/admin" handler={Admin} />
+    <Route name="faq" path="/faq" handler={About} />
     <Route name="notfound" path="/notfound" handler={NotFound} />
     <NotFoundRoute handler={NotFound} />
   </Route>

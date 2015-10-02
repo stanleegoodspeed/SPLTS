@@ -161,6 +161,11 @@ h1, h2, h3, h4, h5, small {
   padding-bottom: 4px;
 }
 
+#editAthletePanel {
+  margin-top: 43px;
+  padding-bottom: 4px;
+}
+
 #final-form-group {
   margin-bottom: 0px;
 }
@@ -176,6 +181,11 @@ h1, h2, h3, h4, h5, small {
 }
 
 #createAthletePanel button:hover {
+  background-color: #3399ff;
+  color: white;
+}
+
+#editBtn button:hover {
   background-color: #3399ff;
   color: white;
 }
@@ -271,6 +281,10 @@ h1, h2, h3, h4, h5, small {
     height: auto;
     max-height: 200px;
     overflow-x: hidden;
+}
+
+#about {
+  padding-top: 30px;
 }
 
 

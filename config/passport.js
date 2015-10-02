@@ -21,25 +21,14 @@ var connection = mysql.createConnection({
 });
 
 connection.connect(function(err) {
-    if(err)
-    {
-      console.log('HANNNNN: ' + err.code); // 'ECONNREFUSED'
-      console.log('SOLOOOO: ' + err.fatal); // true
-    }   
-});
-
-connection.query('SELECT 1', function(err) {
-    if(err)
-    {
-      console.log('HANNNNN: ' + err.code); // 'ECONNREFUSED'
-      console.log('SOLOOOO: ' + err.fatal); // true
-    }
+    if (err) {
+        console.log('ERROR: ' + err);
+    } else {
+        console.log('Connected !');
+    };
 });
 
   
- 
-//connection.connect();	
-
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 

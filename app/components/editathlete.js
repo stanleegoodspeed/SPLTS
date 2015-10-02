@@ -5,6 +5,15 @@ var $ = require('jquery');
 
 var EditAthlete = React.createClass({
 
+      mixins: [React.addons.LinkedStateMixin],
+
+      getInitialState: function() {
+        return {
+          editFirst: 'Hanky Dood',
+          editLast: ''
+        }
+      },
+
       handleSubmit: function(e) {
 
           e.preventDefault();
@@ -17,7 +26,8 @@ var EditAthlete = React.createClass({
 
           var formData = {
             firstName: firstname,
-            lastName: lastname
+            lastName: lastname,
+            runnerID: this.props.data.runnerID
           };
 
           $.ajax({
@@ -26,19 +36,38 @@ var EditAthlete = React.createClass({
             data:formData,
             success:function(data){   
               console.log('success!');  
-              $('#form-response').html('<p className="info">Success!</p>').delay(2000).fadeOut();      
-              this.props.handleSubmit();
+              $('#form-response').html('<p className="info">Success!</p>').delay(2000).fadeOut();  
+              this.props.handleSubmit();    
             }.bind(this),
             error: function() {
-              $('#form-response').html('<p className="danger">Error!</p').delay(2000).fadeOut(); 
               console.log('error!');
+              $('#form-response').html('<p className="danger">Error!</p').delay(2000).fadeOut(); 
             },     
             dataType:"json"
           });
       },
 
       handleDelete: function() {
-        console.log('delete athlete'); // how to delete linked user? maybe just the linking schoolID?
+
+        var formData = {
+            runnerID: this.props.data.runnerID
+        };
+
+        $.ajax({
+            url:"/deleteAthlete",
+            type:"POST",
+            data:formData,
+            success:function(data){   
+              console.log('success!');  
+              $('#form-response').html('<p className="info">Success!</p>').delay(2000).fadeOut(); 
+              this.props.handleSubmit();      
+            }.bind(this),
+            error: function() {
+              $('#form-response').html('<p className="danger">Error!</p').delay(2000).fadeOut(); 
+              console.log('error!');
+            },     
+            dataType:"json"
+        });
       },
 
       render: function () {
@@ -51,20 +80,19 @@ var EditAthlete = React.createClass({
                     <div className="form-group">
                     <div className="row">
                         <label forHtml="firstNameInput">First name</label>
-                        <input type="text" className="form-control" id="firstNameInput" name="firstNameInput" ref="firstname" value={this.props.firstName} />
+                        <input type="text" className="form-control" id="firstNameInput" name="firstNameInput" ref="firstname" valueLink={this.linkState('editFirst')} />
                       </div>
                     </div>
                     <div className="form-group">
                     <div className="row">
                         <label forHtml="lastNameInput">Last name</label>
-                        <input type="text" className="form-control" id="lastNameInput" name="lastNameInput" ref="lastname" value={this.props.lastName} />
+                        <input type="text" className="form-control" id="lastNameInput" name="lastNameInput" ref="lastname" value={this.props.data.lastName} />
                       </div>
                     </div>
                     <div id="final-form-group" className="form-group">
                     <div className="row">
                         <label forHtml="schoolNameInput">School</label>
-                        <input type="text" className="form-control" id="schoolNameInput" value="Haddon Heights High School" disabled />
-                        <input type="hidden" id="schoolCode" name="schoolCode" value={this.props.schoolCode} ref="schoolcode" />
+                        <input type="text" className="form-control" id="schoolNameInput" value={this.props.data.schoolName} disabled />
                       </div>
                     </div>
                     <br />
@@ -73,8 +101,10 @@ var EditAthlete = React.createClass({
                           <button type="submit" className="btn btn-outline-inverse-ca">Save</button>
                           <button type="button" className="btn btn-danger pull-right" onClick={this.handleDelete}><i className="glyphicon glyphicon-trash"></i></button>
                         </div>
-                        
-                    </div>      
+                    </div>  
+                    <div className="row">
+                      <div id="form-response" className="col-sm-12 no-left-padding"></div>
+                    </div>    
                   </form>
                   </div>
               </div>
@@ -82,6 +112,5 @@ var EditAthlete = React.createClass({
       }
   });
 
-//<div id="form-response" className="col-sm-4"></div>
 /* Module.exports instead of normal dom mounting */
 module.exports = EditAthlete;
