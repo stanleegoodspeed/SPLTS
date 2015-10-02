@@ -161,10 +161,6 @@ h1, h2, h3, h4, h5, small {
   padding-bottom: 4px;
 }
 
-#editAthletePanel {
-  margin-top: 43px;
-  padding-bottom: 4px;
-}
 
 #final-form-group {
   margin-bottom: 0px;
@@ -286,6 +282,33 @@ h1, h2, h3, h4, h5, small {
 #about {
   padding-top: 30px;
 }
+
+#editAthletePanel {
+  margin-top: 43px;
+  padding-bottom: 4px;
+  margin-bottom: 5px;
+}
+
+.btn-outline-inverse-ca-danger {
+    color: #d9534f;
+    background-color: transparent;
+    border-color: #d9534f;
+}
+
+button.blue-hover:hover {
+  background-color: #3399ff;
+  color: white;
+}
+
+button.red-hover:hover {
+  background-color: #d9534f;
+  color: white;
+}
+
+#showCreateAthleteBtn {
+  width: 250px;
+}
+
 
 
 

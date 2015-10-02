@@ -25,11 +25,10 @@ var EditLinkComponent = React.createClass({
     $("#createAthleteDiv").addClass("hidden");
     $("#editAthleteDiv").removeClass("hidden");
     pubsub.publish('products', this.props.rowData);
-    //return <button className="btn btn-transparent" onClick={this.handleClick}><i className="glyphicon glyphicon-pencil"></i></button>
   },
 
   render: function() {
-    return <a onClick={this.handleClick}>Edit</a>
+    return <a className="pull-right" onClick={this.handleClick}>Edit</a>
   }
 });
 
@@ -322,6 +321,11 @@ var CoachProfile = React.createClass({
         });
       },
 
+      showPanel: function() {
+          $("#createAthleteDiv").removeClass("hidden");
+          $("#editAthleteDiv").addClass("hidden");
+      },
+
       loadDataFromServer: function() {
 
         var id = this.getParams().id;
@@ -428,46 +432,42 @@ var CoachProfile = React.createClass({
                             <CreateAthlete schoolCode={this.state.schoolCode} schoolName={this.state.coachData.schoolName} handleSubmit={this.handleSubmit} />
                         </div>
                         <div id="editAthleteDiv" className="col-sm-4 hidden">
-
-
-                            <div id="createAthletePanel" className="panel panel-default">
+                            <div id="editAthletePanel" className="panel panel-default">
                               <div className="panel-heading"><h5 className="panel-title">Edit Athlete</h5></div>
-                              <div className="panel-body">
-                              
-                              <form onSubmit={this.handleEditSubmit}>
-                                <div className="form-group">
-                                <div className="row">
-                                    <label forHtml="firstNameInput">First name</label>
-                                    <input type="text" className="form-control" valueLink={this.linkState('editFirst')} />
-                                  </div>
-                                </div>
-                                <div className="form-group">
-                                <div className="row">
-                                    <label forHtml="lastNameInput">Last name</label>
-                                    <input type="text" className="form-control" valueLink={this.linkState('editLast')} />
-                                  </div>
-                                </div>
-                                <div id="final-form-group" className="form-group">
-                                <div className="row">
-                                    <label forHtml="schoolNameInput">School</label>
-                                    <input type="text" className="form-control" id="schoolNameInput" value={this.state.coachData.schoolName} disabled />
-                                  </div>
-                                </div>
-                                <br />
-                                <div className="row">
-                                    <div className="col-sm-12 no-left-padding">
-                                      <button type="submit" className="btn btn-outline-inverse-ca">Save</button>
-                                      <button type="button" className="btn btn-danger pull-right" onClick={this.handleDelete}><i className="glyphicon glyphicon-trash"></i></button>
+                              <div className="panel-body">      
+                                <form onSubmit={this.handleEditSubmit}>
+                                  <div className="form-group">
+                                  <div className="row">
+                                      <label forHtml="firstNameInput">First name</label>
+                                      <input type="text" className="form-control" valueLink={this.linkState('editFirst')} />
                                     </div>
-                                </div>  
-                                <div className="row">
-                                  <div id="form-response" className="col-sm-12 no-left-padding"></div>
-                                </div>    
-                              </form>
+                                  </div>
+                                  <div className="form-group">
+                                  <div className="row">
+                                      <label forHtml="lastNameInput">Last name</label>
+                                      <input type="text" className="form-control" valueLink={this.linkState('editLast')} />
+                                    </div>
+                                  </div>
+                                  <div id="final-form-group" className="form-group">
+                                  <div className="row">
+                                      <label forHtml="schoolNameInput">School</label>
+                                      <input type="text" className="form-control" id="schoolNameInput" value={this.state.coachData.schoolName} disabled />
+                                    </div>
+                                  </div>
+                                  <br />
+                                  <div className="row">
+                                      <div className="col-sm-12 no-left-padding">
+                                        <button type="submit" className="btn btn-outline-inverse-ca blue-hover">Save</button>
+                                        <button type="button" className="btn btn-outline-inverse-ca-danger red-hover pull-right" onClick={this.handleDelete}>Delete</button>
+                                      </div>
+                                  </div>  
+                                  <div className="row">
+                                    <div id="form-response" className="col-sm-12 no-left-padding"></div>
+                                  </div>    
+                                </form>
                               </div>
                           </div>
-
-
+                          <button id="showCreateAthleteBtn" type="button" className="btn btn-outline-inverse-ca blue-hover" onClick={this.showPanel}>Show Create Athlete Panel</button>
                         </div>
                       </div>
 
