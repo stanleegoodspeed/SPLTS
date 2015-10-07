@@ -11,13 +11,11 @@ var mysql = require('mysql');
 
 //PRODUCTION
 var pool = mysql.createPool({
-  host     : 'virginia-mysql-instance1.ctlbtxqxbjwy.us-east-1.rds.amazonaws.com',
-  port     : 3306,
-  user     : 'colincole',
-  password : 'SaltyTuna814',
-  database : 'TeamTrack',
-  connectionLimit: 100,
-  supportBigNumbers: true
+  host     : process.env.MYHOST,
+  port     : process.env.MYPORT,
+  user     : process.env.MYUSER,
+  password : process.env.MYPASS,
+  database : process.env.MYDB
 });
 
 // Get workouts for athlete

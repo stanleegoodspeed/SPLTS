@@ -13,11 +13,11 @@ var bcrypt          = require('bcrypt');
 // });
 
 var connection = mysql.createConnection({
-  host     : 'virginia-mysql-instance1.ctlbtxqxbjwy.us-east-1.rds.amazonaws.com',
-  port     : '3306',
-  user     : 'colincole',
-  password : 'SaltyTuna814',
-  database : 'TeamTrack'
+  host     : process.env.MYHOST,
+  port     : process.env.MYPORT,
+  user     : process.env.MYUSER,
+  password : process.env.MYPASS,
+  database : process.env.MYDB
 });
 
 connection.connect(function(err) {
